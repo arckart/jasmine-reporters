@@ -37,7 +37,10 @@
      *
      * jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
      */
-    exportObject.TapReporter = function() {
+    exportObject.TapReporter = function(updateCallback, completeCallback) {
+        updateCallback = updateCallback || function() {};
+        completeCallback = completeCallback || function() {};
+
         var self = this;
         self.started = false;
         self.finished = false;
@@ -56,6 +59,15 @@
                 description: 'focused specs',
                 fullName: 'focused specs'
             };
+
+        function sendUpdate(str) {
+            updateCallback(str);
+            log(str);
+        }
+
+        function sendComplete() {
+            completeCallback();
+        }
 
         var __suites = {}, __specs = {};
         function getSuite(suite) {
@@ -110,7 +122,7 @@
                 totalSpecsDisabled++;
                 resultStr += ' # SKIP disabled by xit, ?spec=xyz or similar';
             }
-            log(resultStr);
+            sendUpdate(resultStr);
         };
         self.suiteDone = function(suite) {
             suite = getSuite(suite);
@@ -131,9 +143,9 @@
                 disabledSpecs = totalSpecs - totalSpecsExecuted + totalSpecsDisabled;
 
             if (totalSpecsExecuted === 0) {
-                log('1..0 # All tests disabled');
+                sendUpdate('1..0 # All tests disabled');
             } else {
-                log('1..' + totalSpecsExecuted);
+                sendUpdate('1..' + totalSpecsExecuted);
             }
             var diagStr = '#';
             diagStr = '# ' + totalSpecs + ' spec' + (totalSpecs === 1 ? '' : 's');
@@ -141,12 +153,14 @@
             diagStr += ', ' + totalSpecsSkipped + ' skipped';
             diagStr += ', ' + disabledSpecs + ' disabled';
             diagStr += ' in ' + dur + 's.';
-            log(diagStr);
-            log('# NOTE: disabled specs are usually a result of xdescribe.');
+            sendUpdate(diagStr);
+            sendUpdate('# NOTE: disabled specs are usually a result of xdescribe.');
 
             self.finished = true;
             // this is so phantomjs-testrunner.js can tell if we're done executing
             exportObject.endTime = endTime;
+
+            sendComplete();
         };
     };
 })(this);
