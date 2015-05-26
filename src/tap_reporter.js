@@ -48,7 +48,6 @@
         var startTime,
             endTime,
             currentSuite = null,
-            totalSpecsExecuted = 0,
             totalSpecsSkipped = 0,
             totalSpecsDisabled = 0,
             totalSpecsFailed = 0,
@@ -83,6 +82,7 @@
             self.started = true;
             totalSpecsDefined = summary && summary.totalSpecsDefined || NaN;
             startTime = exportObject.startTime = new Date();
+            sendUpdate('1..' + totalSpecsDefined);
         };
         self.suiteStarted = function(suite) {
             suite = getSuite(suite);
@@ -94,12 +94,11 @@
                 self.suiteStarted(fakeFocusedSuite);
             }
             spec = getSpec(spec);
-            totalSpecsExecuted++;
             spec._suite = currentSuite;
         };
         self.specDone = function(spec) {
             spec = getSpec(spec);
-            var resultStr = 'ok ' + totalSpecsExecuted + ' - ' + spec._suite.description + ' : ' + spec.description;
+            var resultStr = 'ok ' + totalSpecsDefined + ' - ' + spec._suite.description + ' : ' + spec.description;
             var failedStr = '';
             if (isFailed(spec)) {
                 totalSpecsFailed++;
@@ -139,14 +138,9 @@
             }
             endTime = new Date();
             var dur = elapsed(startTime, endTime),
-                totalSpecs = totalSpecsDefined || totalSpecsExecuted,
-                disabledSpecs = totalSpecs - totalSpecsExecuted + totalSpecsDisabled;
+                totalSpecs = totalSpecsDefined,
+                disabledSpecs = totalSpecs - totalSpecsDefined + totalSpecsDisabled;
 
-            if (totalSpecsExecuted === 0) {
-                sendUpdate('1..0 # All tests disabled');
-            } else {
-                sendUpdate('1..' + totalSpecsExecuted);
-            }
             var diagStr = '#';
             diagStr = '# ' + totalSpecs + ' spec' + (totalSpecs === 1 ? '' : 's');
             diagStr += ', ' + totalSpecsFailed + ' failure' + (totalSpecsFailed === 1 ? '' : 's');
