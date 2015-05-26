@@ -48,6 +48,7 @@
         var startTime,
             endTime,
             currentSuite = null,
+            totalSpecsExecuted = 0,
             totalSpecsSkipped = 0,
             totalSpecsDisabled = 0,
             totalSpecsFailed = 0,
@@ -94,11 +95,12 @@
                 self.suiteStarted(fakeFocusedSuite);
             }
             spec = getSpec(spec);
+            totalSpecsExecuted++;
             spec._suite = currentSuite;
         };
         self.specDone = function(spec) {
             spec = getSpec(spec);
-            var resultStr = 'ok ' + totalSpecsDefined + ' - ' + spec._suite.description + ' : ' + spec.description;
+            var resultStr = 'ok ' + totalSpecsExecuted + ' - ' + spec._suite.description + ' : ' + spec.description;
             var failedStr = '';
             if (isFailed(spec)) {
                 totalSpecsFailed++;
