@@ -104,7 +104,11 @@
             var failedStr = '';
             if (isFailed(spec)) {
                 totalSpecsFailed++;
-                resultStr = 'not ' + resultStr;
+                resultStr = 'not ' + resultStr + '\n';
+                resultStr += '  ---\n';
+                resultStr += '    message: ' + JSON.stringify(spec.failedExpectations) + '\n';
+                resultStr += '    severity: error\n';
+                resultStr += '  ...';
                 for (var i = 0, failure; i < spec.failedExpectations.length; i++) {
                     failure = spec.failedExpectations[i];
                     failedStr += '\n  ' + trim(failure.message);
